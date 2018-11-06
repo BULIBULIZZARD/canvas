@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    const ROAD = ' ';
+    const WALL = '#';
+    var N, M;
+    var maze = [];
+    var entrance, exit;
+    var show=[];
+    var flags = [];
+    var d = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+    var stack =[];
+
+    var canvas = document.getElementById("canvas");
+    canvas.width = 101 * 8;
+    canvas.height = 101 * 8;
+    var context = canvas.getContext("2d");
+    MazeData();
+    drawMaze();
+    run();
+
+
+    function run() {
+        setFlags();
+
+        stack.push([entrance.x,entrance.y+1]);
+        flags[entrance.x][entrance.y]=1;
+        setData();
+
+        while (stack.length>0){
+            var point = stack[0];
+            stack=stack.slice(1,stack.length);
+            var X = point[0];
+            var Y = point[1];
+            for (var i = 0; i < 4; i++) {
+                var newX = X + d[i][0]*2;
+                var newY = Y + d[i][1]*2;
+                if (inArea(newX, newY)&& flags[newX][newY] == 0) {
+                    stack.push([newX,newY]);
+                    flags[newX][newY]=1;
+                    maze[X + d[i][0]][Y + d[i][1]]=ROAD;
+                    flags[X + d[i][0]][Y + d[i][1]]=1;
+                    setData();
+                }
+            }
+        }
+        setData();
+
+        var k = 0;
+        var loop = setInterval(function () {
+            if (k >= show.length-1) {
+                clearInterval(loop);
+            }
+            draw(k);
+            k++;
+        }, 10)
+    }
+
+
+
+
+    function setData() {
+        var data = [];
+        for (var i = 0; i < flags.length; i++) {
+            data.push(flags[i].slice(0, flags[i].length));
+        }
+        show.push([data.slice(0, flags.length)]);
+    }
+    function getMaze(i, j) {
+        if (!inArea(i, j)) {
+            alert("error");
+        }
+        return maze[i][j];
+    }
+
+    function inArea(x, y) {
+        return x >= 0 && x < N && y >= 0 && y < M;
+    }
+    function MazeData() {
+        // 定义N M;
+        N = 101;
+        M = 101;
+        for (var i = 0; i < N; i++) {
+            var data = [];
+            for (var j = 0; j < M; j++) {
+                if (i % 2 == 1 && j % 2 == 1) {
+                    data.push(ROAD);
+                } else {
+                    data.push(WALL);
+                }
+            }
+            maze.push(data);
+        }
+        entrance = {
+            x: 1,
+            y: 0
+        };
+        exit = {
+            x: N - 2,
+            y: M - 1,
+        };
+        maze[entrance.x][entrance.y] = ROAD;
+        maze[exit.x][exit.y] = ROAD;
+    }
+    function draw(k) {
+        var width = parseInt(canvas.width / N);
+        var height = parseInt(canvas.height / M);
+        for (var i = 0; i < maze.length; i++) {
+            for (var j = 0; j < maze[i].length; j++) {
+                if (show[k][0][i][j] == 1) {
+                    context.beginPath();
+                    context.fillStyle = "#fff";
+                    context.fillRect(j * width, i * height, width, height);
+                    continue;
+                }
+                if(show[k][0][i][j] == 2){
+                    context.beginPath();
+                    context.fillStyle = "#ff0";
+                    context.fillRect(j * width, i * height, width, height);
+                }
+            }
+        }
+    }
+
+    function drawMaze() {
+        var width = parseInt(canvas.width / N);
+        var height = parseInt(canvas.height / M);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < maze.length; i++) {
+            for (var j = 0; j < maze[i].length; j++) {
+                context.beginPath();
+                if (maze[i][j] == "#") {
+                    context.fillStyle = "#08f";
+                } else {
+                    context.fillStyle = "#fff";
+                }
+                context.fillRect(j * width, i * height, width, height);
+            }
+        }
+    }
+
+    function setFlags() {
+        for (var i = 0; i < N; i++) {
+            var flag = [];
+            for (var j = 0; j < M; j++) {
+                flag.push(0);
+            }
+            flags.push(flag);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    window.onload = function () {
+        var canvas = document.getElementById("canvas");
+        canvas.width = 800;
+        canvas.height = 800;
+        var context = canvas.getContext("2d");
+
+        context.fillStyle = "#058";
+        context.shadowColor = "gray";
+        context.shadowOffsetX = 10;
+        context.shadowOffsetY = 10;
+        context.shadowBlur = 5;
+
+        var linearGrad = context.createRadialGradient(400, 400, 0, 400, 400, 220);
+        linearGrad.addColorStop(1 / 7.0, '#f00');
+        linearGrad.addColorStop(2 / 7.0, '#f80');
+        linearGrad.addColorStop(3 / 7.0, '#ff0');
+        linearGrad.addColorStop(4 / 7.0, '#0f0');
+        linearGrad.addColorStop(5 / 7.0, '#0ff');
+        linearGrad.addColorStop(6 / 7.0, '#00f');
+        linearGrad.addColorStop(1.0, '#80f');
+        context.font="bold 120px Arial";
+        context.fillStyle =linearGrad;
+        context.textAlign="center";
+        context.textBaseline = "middle";
+        context.fillText("CANVAS",canvas.width/2,canvas.height/2);
+    }
+</script>
+</body>
+</html>

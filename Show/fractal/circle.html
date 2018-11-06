@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    const canvas = document.getElementById("canvas");
+    canvas.width = 800;
+    canvas.height = 800;
+    const context = canvas.getContext("2d");
+    const R = Math.min(canvas.width, canvas.height) / 2;
+    const center = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+    };
+    const d = R / 2;
+    const step = 2;
+
+    CircleData(center.x, center.y, R);
+
+
+    function CircleData(x, y, r) {
+        // let i = 0;
+        // setInterval(function () {
+        //     i++;
+        //     if (i % 2 == 0) {
+        //         drawCircle(x, y, r, 0);
+        //     } else {
+        //         drawCircle2(x, y, r, 0);
+        //     }
+        // }, 30);
+        drawCircle(x, y, r, 0);
+    }
+
+    function drawCircle(x, y, r, depth) {
+        if (depth == R / 2 || r < 1) {
+            return '';
+        }
+        context.beginPath();
+        context.arc(x, y, r, 0, 2 * Math.PI);
+        if (depth % 7 == 0) {
+            context.fillStyle = "#f00"
+        } else if (depth % 7 == 1) {
+            context.fillStyle = "#f80"
+        } else if (depth % 7 == 2) {
+            context.fillStyle = "#ff0"
+        } else if (depth % 7 == 3) {
+            context.fillStyle = "#0f0"
+        } else if (depth % 7 == 4) {
+            context.fillStyle = "#0ff"
+        } else if (depth % 7 == 5) {
+            context.fillStyle = "#00f"
+        } else if (depth % 7 == 6) {
+            context.fillStyle = "#80f"
+        }
+        context.fill();
+        drawCircle(x, y, r - step, depth + 1);
+    }
+
+    function drawCircle2(x, y, r, depth) {
+        if (depth == R / 2 || r < 1) {
+            return '';
+        }
+        context.beginPath();
+        context.arc(x, y, r, 0, 2 * Math.PI);
+        if (depth % 2 != 0) {
+            context.fillStyle = "#f00"
+        } else {
+            context.fillStyle = "#ff0"
+        }
+        context.fill();
+        drawCircle2(x, y, r - step, depth + 1);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+
+    var boston = "3\n" +
+        "...G...\n" +
+        "...YG..\n" +
+        "..GGY.X\n" +
+        "..YOGGX\n" +
+        ".GGOBBO\n" +
+        ".OOBOXX\n" +
+        "GBBOXXO\n";
+
+    var gameData = [];
+    var N;
+    var M;
+    var maxTurn;
+    var blockSide = 80;
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+    var d = [[0, 1], [1, 0], [0, -1]];
+    var show = [];
+
+    getData();
+    setBoard();
+    console.log(M, N);
+    canvas.width = M * blockSide;
+    canvas.height = N * blockSide;
+    run();
+    showWay();
+    // var k=show.length;
+    // document.onmousedown=function (e){
+    //     e.preventDefault();
+    //
+    //     if (e.button==0){
+    //         drawBlock(k-1);
+    //         k--;
+    //     }else if(e.button==2){
+    //         drawBlock(k-1);
+    //         if (k<show.length-1){
+    //             k++;
+    //         }
+    //     }
+    // };
+
+    function showWay() {
+        var k = 0;
+        var loop = setInterval(function () {
+            drawBlock(k);
+            if (k < show.length - 1) {
+                k++;
+            } else {
+                clearInterval(loop);
+            }
+        }, 30);
+    }
+
+    function getData() {
+        for (let i = 0; ; i++) {
+            gameData[i] = [];
+            for (let j = 0; ; j++) {
+                if (boston[0] == "\n") {
+                    break;
+                }
+                gameData[i][j] = boston[0];
+                boston = boston.slice(1, boston.length);
+            }
+            boston = boston.slice(1, boston.length);
+            if (boston.length == 0) {
+                break;
+            }
+        }
+    }
+
+    function setData(broad) {
+        var data = [];
+        for (var i = 0; i < broad.length; i++) {
+            data[i] = [];
+            for (var j = 0; j < broad[i].length; j++) {
+                data[i][j] = broad[i][j];
+            }
+        }
+        show.push(data);
+    }
+
+    function setBoard() {
+        var data = gameData[0];
+        maxTurn = data[0];
+        gameData = gameData.slice(1, gameData.length);
+        N = gameData.length;
+        M = gameData[0].length;
+        if (M == 0 || N == 0) {
+            alert('init error!');
+        }
+    }
+
+
+    function run() {
+        setData(gameData);
+        drawBlock(0);
+        if (solve()) {
+            alert("The game has a solution");
+        } else {
+            alert("The game dose not have a solution");
+        }
+    }
+
+    function solve() {
+        if (maxTurn < 0) {
+            return false;
+        }
+        var board = copyData(gameData);
+        return solveeeee(board, maxTurn);
+    }
+
+    function solveeeee(board, turn, lastBoard) {
+        if (board == null || turn < 0) {
+            alert("Illegal arguments");
+        }
+        if (isWin(board)) {
+            return true;
+        }
+        if (turn == 0) {
+            return isWin(board);
+        }
+
+
+        for (var x = 0; x < N; x++) {
+            for (var y = 0; y < M; y++) {
+                if (board[x][y] != '.') {
+                    for (var i = 0; i < d.length; i++) {
+                        var newX = x + d[i][0];
+                        var newY = y + d[i][1];
+                        if (inArea(newX, newY)) {
+                            setData(board);
+                            //console.log(board);
+                            //console.log("(" + x + "," + y + ")swap( " + newX + "," + newY + ")");
+                            var newBoard = copyData(board);
+                            swap(newBoard, x, y, newX, newY);
+                            boardRun(newBoard);
+                            if (solveeeee(newBoard, turn - 1, board)) {
+                                console.log(board);
+                                console.log("(" + x + "," + y + ")swap( " + newX + "," + newY + ")");
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    function boardRun(board) {
+        do {
+            drop(board);
+        } while (match(board));
+
+        return '';
+    }
+
+    function drop(board) {
+        setData(board);
+        for (var j = 0; j < M; j++) {
+            var cur = N - 1;
+            for (var i = N - 1; i >= 0; i--) {
+                if (board[i][j] != '.') {
+                    swap(board, i, j, cur, j);
+                    cur--;
+                }
+            }
+        }
+        return '';
+    }
+
+    function match(board) {
+        setData(board);
+        var tag = [];
+        var dd = [[0, 1], [1, 0]];
+        for (var i = 0; i < N; i++) {
+            tag[i] = [];
+            for (var j = 0; j < M; j++) {
+                tag[i][j] = false;
+            }
+        }
+
+        for (var x = 0; x < N; x++) {
+            for (var y = 0; y < M; y++) {
+                if (board[x][y] != '.') {
+                    for (var i = 0; i < 2; i++) {
+                        var newX1 = x + dd[i][0];
+                        var newY1 = y + dd[i][1];
+                        var newX2 = newX1 + dd[i][0];
+                        var newY2 = newY1 + dd[i][1];
+                        if (inArea(newX1, newY1)
+                            && inArea(newX2, newY2)
+                            && board[newX1][newY1] == board[x][y]
+                            && board[newX2][newY2] == board[x][y]) {
+
+                            tag[x][y] = true;
+                            tag[newX1][newY1] = true;
+                            tag[newX2][newY2] = true;
+
+                        }
+                    }
+                }
+            }
+        }
+
+        var isMatched = false;
+        for (var x = 0; x < N; x++) {
+            for (var y = 0; y < M; y++) {
+                if (tag[x][y]) {
+                    board[x][y] = '.';
+                    isMatched = true;
+                }
+            }
+        }
+        return isMatched;
+    }
+
+    function swap(board, x1, y1, x2, y2) {
+        var data = board[x1][y1];
+        board[x1][y1] = board[x2][y2];
+        board[x2][y2] = data;
+    }
+
+    function copyData(data) {
+        var newData = [];
+        for (var i = 0; i < data.length; i++) {
+            newData[i] = [];
+            for (var j = 0; j < data[i].length; j++) {
+                newData[i][j] = data[i][j];
+            }
+        }
+        return newData;
+    }
+
+    function isWin(board) {
+        for (var i = 0; i < board.length; i++) {
+            for (var j = 0; j < board[i].length; j++) {
+                if (board[i][j] != '.') {
+                    return false
+                }
+            }
+        }
+        return true;
+    }
+
+    function drawBlock(k) {
+        for (var i = 0; i < N; i++) {
+            for (var j = 0; j < M; j++) {
+                context.beginPath();
+                if (show[k][i][j] == '.') {
+                    context.fillStyle = "#fff"
+                } else if (show[k][i][j] == 'R') {
+                    context.fillStyle = "#f00"
+                } else if (show[k][i][j] == 'O') {
+                    context.fillStyle = "#f80";
+                } else if (show[k][i][j] == 'Y') {
+                    context.fillStyle = "#ff0";
+                } else if (show[k][i][j] == 'G') {
+                    context.fillStyle = "#0f0";
+                } else if (show[k][i][j] == 'A') {
+                    context.fillStyle = "#0ff";
+                } else if (show[k][i][j] == 'B') {
+                    context.fillStyle = "#00f";
+                } else if (show[k][i][j] == 'X') {
+                    context.fillStyle = "#000";
+                }
+                context.fillRect(j * blockSide - 2, i * blockSide - 2, blockSide - 4, blockSide - 4);
+                context.rect(j * blockSide - 2, i * blockSide - 2, blockSide - 4, blockSide - 4);
+            }
+        }
+    }
+
+    function inArea(x, y) {
+        return x >= 0 && x < N && y >= 0 && y < M;
+    }
+</script>
+</body>
+</html>

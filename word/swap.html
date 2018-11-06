@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+<script>
+    var a=[10,9,8,7,6,5,4,3,2,1,0];
+    var b=0;
+    swap();
+    i = a.length;
+    var b =0;
+    function swap(i) {
+        if(i==0){
+            return ;
+        }
+        for(var j=0;j<i-1;j++){
+            if(a[j]>a[j+1]){
+                b = a[j];
+                a[j]=a[j+1];
+                a[j+1]=b;
+            }
+        }
+        console.log(a);
+        i--;
+        swap(i);
+        return ;
+    }
+
+
+</script>
+</body>
+</html>

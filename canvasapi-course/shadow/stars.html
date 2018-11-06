@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    window.onload = function () {
+        var canvas = document.getElementById("canvas");
+        canvas.width = 800;
+        canvas.height = 800;
+        var context = canvas.getContext("2d");
+
+        context.shadowColor = "#058";
+        context.shadowOffsetX = 10;
+        context.shadowOffsetY = 10;
+        context.shadowBlur = 5;
+        drawStar(context, 400, 400, 300, 0);
+
+    };
+
+    function drawStar(cxt, x, y, R, rot) {
+        cxt.save();
+
+        cxt.translate(x, y);
+        cxt.rotate(rot / 180 * Math.PI);
+        cxt.scale(R, R);
+        starPath(cxt);
+
+        cxt.fillStyle = "#fb3";
+        //cxt.strokeStyle = "#fd5";
+        //cxt.lineWidth = 3;
+        //cxt.lineJoin = "round";
+
+        cxt.fill();
+        //cxt.stroke();
+
+        cxt.restore();
+    }
+
+    function starPath(cxt) {
+        cxt.beginPath();
+        for (var i = 0; i < 5; i++) {
+            cxt.lineTo(Math.cos((18 + 72 * i) / 180 * Math.PI),
+                -Math.sin((18 + 72 * i) / 180 * Math.PI));
+            cxt.lineTo(Math.cos((54 + 72 * i) / 180 * Math.PI) * 0.5,
+                -Math.sin((54 + 72 * i) / 180 * Math.PI) * 0.5);
+        }
+        cxt.closePath();
+    }
+
+
+</script>
+</body>
+</html>

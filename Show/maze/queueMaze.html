@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<input type="file" onchange="jsReadFiles(this.files)">
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+
+<script>
+    var string = "";
+    var N, M;
+    var maze = [];
+    var flags = [];
+    var show = [];
+    var d = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+    var stack = [];
+
+    var entrance;
+    var exit;
+    var canvas = document.getElementById("canvas");
+    canvas.width = 101 * 8;
+    canvas.height = 101 * 8;
+    var context = canvas.getContext("2d");
+
+    function jsReadFiles(files) {
+        if (files.length) {
+            var file = files[0];
+            var reader = new FileReader();//new一个FileReader实例
+            if (/text+/.test(file.type)) {//判断文件类型，是不是text类型
+                reader.onload = function () {
+                    string = this.result;
+                    string.slice(0, string.length);
+                    run();
+                };
+                reader.readAsText(file);
+            } else if (/image+/.test(file.type)) {//判断文件是不是image类型
+                reader.onload = function () {
+                    console.log(this.result)
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    }
+
+    function setData() {
+        var data = [];
+        for (var i = 0; i < flags.length; i++) {
+            data.push(flags[i].slice(0, flags[i].length));
+        }
+        show.push([data.slice(0, flags.length)]);
+    }
+
+    function run() {
+        init();
+        setData();
+        stack.push([entrance.x, entrance.y]);
+        flags[entrance.x][entrance.y] = 1;
+        var isSolved = false;
+        while (stack.length != 0) {
+            var point = stack[0];
+            stack=stack.slice(1,stack.length);
+            var X = point[0];
+            var Y = point[1];
+            flags[X][Y] = 2;
+            setData();
+            if (X == exit.x && Y == exit.y) {
+                isSolved= true;
+                break;
+            }
+
+            for (var i = 0; i < 4; i++) {
+                var newX = X + d[i][0];
+                var newY = Y + d[i][1];
+                if (inArea(newX, newY) && getMaze(newX, newY) == " " && flags[newX][newY] == 0) {
+                    stack.push([newX,newY]);
+                }
+            }
+        }
+        if(!isSolved){
+            alert("no way to exit");
+        }
+        setData();
+        drawMaze();
+        var k = 0;
+        var loop = setInterval(function () {
+            if (k >= show.length - 1) {
+                clearInterval(loop);
+            }
+            draw(k);
+            k++;
+        }, 10)
+    }
+
+
+    function init() {
+        setMaze();
+        setFlags();
+        entrance = {
+            x: 1,
+            y: 0
+        };
+        exit = {
+            x: maze.length - 2,
+            y: maze[0].length - 1,
+        };
+    }
+
+    function setMaze() {
+        var num = 0;
+        while (true) {
+            if (string[num]) {
+                var data = [];
+                while (true) {
+                    var char = string[num];
+                    var a = 1;
+                    if (char == "\n") {
+                        break;
+                    }
+                    data.push(char);
+                    num++;
+                }
+                maze.push(data);
+                num++;
+            } else {
+                break;
+            }
+        }
+        maze = maze.slice(1, maze.length);
+    }
+
+    function setFlags() {
+        for (var i = 0; i < N(); i++) {
+            var flag = [];
+            for (var j = 0; j < M(); j++) {
+                flag.push(0);
+            }
+            flags.push(flag);
+        }
+    }
+
+    function N() {
+        return maze.length;
+    }
+
+    function M() {
+        return maze[0].length;
+    }
+
+    function MazeData() {
+        if (string == "") {
+            alert("Can not read MazeDate");
+        }
+    }
+
+    function getMaze(i, j) {
+        if (!inArea(i, j)) {
+            alert("error");
+        }
+        return maze[i][j];
+    }
+
+    function inArea(x, y) {
+        return x >= 0 && x < N() && y >= 0 && y < M();
+    }
+
+    function draw(k) {
+        var width = parseInt(canvas.width / N());
+        var height = parseInt(canvas.height / M());
+        for (var i = 0; i < maze.length; i++) {
+            for (var j = 0; j < maze[i].length; j++) {
+                if (show[k][0][i][j] == 1) {
+                    context.beginPath();
+                    context.fillStyle = "#f00";
+                    context.fillRect(j * width, i * height, width, height);
+                    continue;
+                }
+                if (show[k][0][i][j] == 2) {
+                    context.beginPath();
+                    context.fillStyle = "#ff0";
+                    context.fillRect(j * width, i * height, width, height);
+                }
+            }
+        }
+    }
+
+    function drawMaze() {
+        var width = parseInt(canvas.width / N());
+        var height = parseInt(canvas.height / M());
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < maze.length; i++) {
+            for (var j = 0; j < maze[i].length; j++) {
+                context.beginPath();
+                if (maze[i][j] == "#") {
+                    context.fillStyle = "#08f";
+
+                } else {
+                    context.fillStyle = "#fff";
+                }
+                context.fillRect(j * width, i * height, width, height);
+            }
+        }
+    }
+
+</script>
+</body>
+</html>

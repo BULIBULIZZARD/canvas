@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    var searchLight = {
+        x: 400,
+        y: 400,
+        radius: 150,
+        vx: Math.random() * 5 + 10,
+        vy: Math.random() * 5 + 10,
+    };
+    window.onload = function () {
+        var canvas = document.getElementById("canvas");
+        canvas.width = 800;
+        canvas.height = 800;
+        var context = canvas.getContext("2d");
+
+
+        setInterval(
+            function () {
+                draw(context);
+                update(canvas.width, canvas.height);
+            }, 40
+        );
+
+
+    };
+
+    function draw(cxt) {
+        var canvas = cxt.canvas;
+        cxt.clearRect(0, 0, canvas.width, canvas.height);
+        cxt.save();
+        cxt.beginPath();
+        cxt.fillStyle = "black";
+        cxt.fillRect(0, 0, canvas.width, canvas.height);
+
+        cxt.beginPath();
+        cxt.arc(searchLight.x, searchLight.y, searchLight.radius, 0, 2 * Math.PI);
+        cxt.fillStyle = "#fff";
+        cxt.fill();
+        cxt.clip();
+
+        // cxt.shadowColor = "#058";
+        // cxt.shadowOffsetX = 10;
+        // cxt.shadowOffsetY = 10;
+        // cxt.shadowBlur = 5;
+        // drawStar(cxt, 400, 400, 200, 0);
+        var linearGrad = cxt.createRadialGradient(400, 400, 0, 400, 400, 300);
+        linearGrad.addColorStop(1 / 7.0, '#f00');
+        linearGrad.addColorStop(2 / 7.0, '#f80');
+        linearGrad.addColorStop(3 / 7.0, '#ff0');
+        linearGrad.addColorStop(4 / 7.0, '#0f0');
+        linearGrad.addColorStop(5 / 7.0, '#0ff');
+        linearGrad.addColorStop(6 / 7.0, '#00f');
+        linearGrad.addColorStop(1.0, '#80f');
+
+        cxt.shadowColor = "gray";
+        cxt.shadowOffsetX = 5;
+        cxt.shadowOffsetY = 5;
+        cxt.shadowBlur = 5;
+
+        cxt.font="bold 150px Arial";
+        cxt.fillStyle =linearGrad;
+        cxt.textAlign="center";
+        cxt.textBaseline = "middle";
+        cxt.fillText("CANVAS",canvas.width/2,canvas.height/2);
+
+        cxt.restore();
+
+    }
+
+    function update(canvasWidth, canvasHeight) {
+        searchLight.x += searchLight.vx;
+        searchLight.y += searchLight.vy;
+
+        if (searchLight.y >= canvasHeight - searchLight.radius) {
+            searchLight.y = canvasHeight - searchLight.radius;
+            searchLight.vy = -searchLight.vy;
+        }
+        if (searchLight.y <= searchLight.radius) {
+            searchLight.y = searchLight.radius;
+            searchLight.vy = -searchLight.vy;
+        }
+        if (searchLight.x >= canvasWidth - searchLight.radius) {
+            searchLight.x = canvasWidth - searchLight.radius;
+            searchLight.vx = -searchLight.vx;
+        }
+        if (searchLight.x <= searchLight.radius) {
+            searchLight.x = searchLight.radius;
+            searchLight.vx = -searchLight.vx;
+        }
+    }
+
+    function drawStar(cxt, x, y, R, rot) {
+        cxt.save();
+
+        cxt.translate(x, y);
+        cxt.rotate(rot / 180 * Math.PI);
+        cxt.scale(R, R);
+        starPath(cxt);
+
+        cxt.fillStyle = "#fb3";
+        //cxt.strokeStyle = "#fd5";
+        //cxt.lineWidth = 3;
+        //cxt.lineJoin = "round";
+
+        cxt.fill();
+        //cxt.stroke();
+
+        cxt.restore();
+    }
+
+    function starPath(cxt) {
+        cxt.beginPath();
+        for (var i = 0; i < 5; i++) {
+            cxt.lineTo(Math.cos((18 + 72 * i) / 180 * Math.PI),
+                -Math.sin((18 + 72 * i) / 180 * Math.PI));
+            cxt.lineTo(Math.cos((54 + 72 * i) / 180 * Math.PI) * 0.5,
+                -Math.sin((54 + 72 * i) / 180 * Math.PI) * 0.5);
+        }
+        cxt.closePath();
+    }
+
+
+</script>
+</body>
+</html>

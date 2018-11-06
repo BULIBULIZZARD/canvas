@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<span id="ss"></span>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+
+
+<script>
+    var test = document.getElementById("ss");
+    var ball = {x: 512, y: 100, r: 20, g: 2, vx: -5, vy: -5, color: "#005588"};
+    window.onload = function () {
+        var canvas = document.getElementById("canvas");
+        canvas.width = 1024;
+        canvas.height = 768;
+        var context = canvas.getContext("2d");
+
+        setInterval(
+            function () {
+                render(context);
+                update();
+            },
+            50
+        )
+    };
+
+    function update() {
+        yMax = 768;
+        xMax = 1024;
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+        ball.vy += ball.g;
+        if (ball.y >= yMax - ball.r) {
+            ball.y = yMax - ball.r;
+            ball.vy = -ball.vy * 0.5;
+            if (ball.vy <3.4 && ball.vy > -3.4){
+                ball.vy=0
+                ball.y=yMax-ball.r;
+            }
+        }
+        if (ball.y <= ball.r) {
+            ball.y = ball.r;
+            ball.vy = -ball.vy * 0.5
+
+        }
+        if (ball.x >= xMax - ball.r) {
+            ball.x = xMax - ball.r;
+            ball.vx = -ball.vx * 0.5
+        }
+        if (ball.x <= ball.r) {
+            ball.x = ball.r;
+            ball.vx = -ball.vx * 0.5
+        }
+
+    }
+
+    function render(cxt) {
+        test.innerText="vx :"+ball.vx+"  vy :"+ball.vy;
+        cxt.clearRect(0, 0, cxt.canvas.width, cxt.canvas.height);
+
+        cxt.fillStyle = ball.color;
+        cxt.beginPath();
+        cxt.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
+        cxt.closePath();
+
+        cxt.fill()
+    }
+</script>
+</body>
+</html>

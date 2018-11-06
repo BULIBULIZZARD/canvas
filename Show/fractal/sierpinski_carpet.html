@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    const depth = 6;
+    const canvas = document.getElementById("canvas");
+    canvas.width = Math.pow(3, depth);
+    canvas.height = Math.pow(3, depth);
+    const context = canvas.getContext("2d");
+
+
+    drawFractal(0, 0, canvas.width, canvas.height, 0);
+
+    document.onkeydown = function (e) {
+        let key = e.key;
+        if (parseInt(key)>=0&&parseInt(key)<=depth) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawFractal(0, 0, canvas.width, canvas.height, parseInt(key));
+        }
+
+    };
+
+    function drawFractal(x, y, w, h, d) {
+        let w_3 = parseInt(w / 3);
+        let h_3 = parseInt(h / 3);
+        if (d == depth) {
+            context.beginPath();
+            context.fillStyle = "#08f";
+            context.fillRect(x + w_3, y + h_3, w_3, h_3);
+            return false;
+        }
+        if (w <= 1 || h <= 1) {
+            return false;
+        }
+
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (i == 1 && j == 1) {
+                    context.beginPath();
+                    context.fillStyle = "#08f";
+                    context.fillRect(x + w_3, y + h_3, w_3, h_3);
+                } else {
+                    drawFractal(x + i * w_3, y + j * h_3, w_3, h_3, d + 1);
+                }
+            }
+        }
+
+    }
+
+
+</script>
+</body>
+</html>

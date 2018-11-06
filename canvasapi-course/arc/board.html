@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    window.onload = function () {
+        var canvas = document.getElementById("canvas");
+        canvas.width = 800;
+        canvas.height = 800;
+        var context = canvas.getContext("2d");
+        //drawRoundRect(context, 100, 100, 600, 500, 50);
+        fillRoundRect(context,150,150,500,500,10,"#bbaba0");
+        for (var i = 0; i < 4; i++)
+            for (var j = 0; j < 4; j++)
+                fillRoundRect(context, 170 + i * 120, 170 + j * 120, 100, 100, 6, "#ccc0b3");
+
+    };
+
+    function drawRoundRect(cxt, x, y, width, height, radius) {
+        cxt.save();
+        cxt.translate(x, y);
+        pathRoundRect(cxt, width, height, radius);
+        cxt.strokeStyle = "#000";
+        cxt.stroke();
+        cxt.restore();
+    }
+
+    function pathRoundRect(cxt, width, height, radius) {
+        cxt.beginPath();
+        cxt.arc(radius, radius, radius, Math.PI, 1.5 * Math.PI);
+        cxt.lineTo(width - radius, 0);
+        cxt.arc(width - radius, radius, radius, 1.5 * Math.PI, 2 * Math.PI);
+        cxt.lineTo(width, height - radius);
+        cxt.arc(width - radius, height - radius, radius, 2 * Math.PI, 0.5 * Math.PI);
+        cxt.lineTo(radius, height);
+        cxt.arc(radius, height - radius, radius, 0.5 * Math.PI, 1.0 * Math.PI);
+        cxt.closePath();
+    }
+
+    function fillRoundRect(cxt, x, y, width, height, radius, fillColor) {
+        if (2 * radius > width || 2 * radius > height)
+            return;
+        cxt.save();
+        cxt.translate(x, y);
+        pathRoundRect(cxt, width, height, radius);
+        cxt.fillStyle = fillColor || "#000";
+        cxt.fill();
+        cxt.restore();
+    }
+
+    function strokeRoundRect(cxt, x, y, width, height, radius, lienWidth, strokeColor) {
+        if (2 * radius > width || 2 * radius > height)
+            return;
+        cxt.save();
+        cxt.translate(x, y);
+        pathRoundRect(cxt, width, height, radius);
+        cxt.lineWidth = lienWidth || 1;
+        cxt.strokeStyle = strokeColor || "#000";
+        cxt.stroke();
+        cxt.restore();
+    }
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    var numbers = [];
+    var num = 100;
+    var max = 800;
+    var data =[];
+
+    var canvas = document.getElementById("canvas");
+    canvas.width = 1200;
+    canvas.height = 800;
+    var context = canvas.getContext("2d");
+    var width = canvas.width / num;
+
+    Array.copyOfRange = function (arr, first, last) {
+        var result = [];
+        for (var i = first, j = 0; i < last; i++, j++) {
+            result[j] = arr[i];
+        }
+        return result;
+    };
+
+    function init() {
+        for (var i = 0; i < num; i++) {
+            numbers[i] = parseInt(Math.random() * max) + 1;
+        }
+    }
+
+    function merge(l, mid, r) {
+        var aux = numbers.slice(l, r + 1);
+        var flag = false;
+        var i = l;
+        var j = mid + 1;
+        for (var k = l; k <= r; k++) {
+            if (i > mid) {
+                flag = true;
+                numbers[k] = aux[j - l];
+                j++;
+            } else if (j > r) {
+                flag = true;
+                numbers[k] = aux[i - l];
+                i++;
+            } else if (aux[i - l] - aux[j - l] < 0) {
+                flag = true;
+                numbers[k] = aux[i - l];
+                i++;
+            } else {
+                flag = true;
+                numbers[k] = aux[j - l];
+                j++;
+            }
+            data.push([numbers.slice(0, numbers.length), [l, r, k]]);
+        }
+    }
+
+    function sort(l, r, depth) {
+        if (l >= r) {
+            return [];
+        }
+        data.push([numbers.slice(0, numbers.length), [l, r, -1]]);
+        var mid = parseInt((l + r) / 2);
+        sort(l, mid, depth + 1);
+        sort(mid + 1, r, depth + 1);
+        merge(l, mid, r)
+    }
+
+    window.onload = function () {
+        init();
+        data.push([numbers.slice(0, numbers.length), [-1, -1, -1]]);
+        sort(0, numbers.length - 1, 0);
+        data.push([numbers.slice(0, numbers.length), [0, numbers.length - 1, numbers.length - 1]]);
+
+        var k = 0;
+        var loop = setInterval(function () {
+            draw(k);
+            k++;
+            if (k >= data.length) {
+                clearInterval(loop);
+            }
+        }, 20)
+
+    };
+
+
+    function draw(k) {
+        var l=data[k][1][0];
+        var r=data[k][1][1];
+        var mergeIndex=data[k][1][2];
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < num; i++) {
+            context.beginPath();
+            if (i >= l && i <= r) {
+                context.fillStyle = "#0f0";
+            } else {
+                context.fillStyle = "#aaa";
+            }
+            if (i >= l && i <= mergeIndex) {
+                context.fillStyle = "#f50";
+            }
+            context.fillRect(width * i, canvas.height - data[k][0][i], width - 1, canvas.height);
+        }
+    }
+
+</script>
+</body>
+</html>

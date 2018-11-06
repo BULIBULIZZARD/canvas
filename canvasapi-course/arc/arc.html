@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    window.onload = function () {
+        var canvas = document.getElementById("canvas");
+        canvas.width = 1024;
+        canvas.height = 768;
+        var context = canvas.getContext("2d");
+        //arcRect(context, 200, 200, 20, 200, 200);
+        drawRoundRect(context, 100, 100, 600, 500, 50);
+
+    };
+
+    function drawRoundRect(cxt, x, y, width, height, radius) {
+        cxt.save();
+        cxt.translate(x, y);
+        pathRoundRect(cxt, width, height, radius);
+        cxt.strokeStyle="#000";
+        cxt.stroke();
+        cxt.restore();
+    }
+    function pathRoundRect(cxt, width, height, radius) {
+        cxt.beginPath();
+        cxt.arc(radius, radius, radius, Math.PI, 1.5 * Math.PI);
+        cxt.lineTo(width-radius,0);
+        cxt.arc(width-radius, radius, radius, 1.5 *Math.PI,  2*Math.PI);
+        cxt.lineTo(width,height-radius);
+        cxt.arc(width-radius, height-radius, radius, 2*Math.PI, 0.5 * Math.PI);
+        cxt.lineTo(radius,height);
+        cxt.arc(radius, height-radius, radius, 0.5*Math.PI, 1.0 * Math.PI);
+        cxt.closePath();
+    }
+
+
+    function arcRect(cxt, width, height, r, x, y) {
+        cxt.beginPath();
+        cxt.arc(x, y, r, Math.PI, 1.5 * Math.PI);
+        cxt.lineTo(width + x, y - r);
+        cxt.arc(x + width, y, r, 1.5 * Math.PI, 2 * Math.PI);
+        cxt.lineTo(width + x + r, width + y);
+        cxt.arc(x + width, width + y, r, 2 * Math.PI, 0.5 * Math.PI);
+        cxt.lineTo(x, width + y + r);
+        cxt.arc(x, y + width, r, 0.5 * Math.PI, Math.PI);
+
+        cxt.closePath();
+
+        cxt.stroke();
+
+    }
+</script>
+</body>
+</html>

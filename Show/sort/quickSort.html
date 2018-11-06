@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    var numbers = [];
+    var num = 100;
+    var max = 800;
+    var data = [];
+    var flags = [];
+
+    var canvas = document.getElementById("canvas");
+    canvas.width = 1200;
+    canvas.height = 800;
+    var context = canvas.getContext("2d");
+    var width = canvas.width / num;
+
+    function init() {
+        for (var i = 0; i < num; i++) {
+            numbers[i] = parseInt(Math.random() * max) + 1;
+            flags[i]=false;
+        }
+    }
+
+    function quickSort(l, r) {
+        if (l > r) return [];
+        if (l == r){
+            data.push([numbers.slice(0,numbers.length),[l,r,-1,-1],flags.slice(0,flags.length)]);
+            flags[l]=true;
+            return [];
+        }
+        data.push([numbers.slice(0,numbers.length),[l,r,-1,-1],flags.slice(0,flags.length)]);
+        var p = partition(l, r);
+        quickSort(l, p);
+        quickSort(p + 1, r);
+    }
+
+    function partition(l, r) {
+        var p = parseInt(Math.random()*(r-l+1))+l;
+        flags[p]=true;
+        data.push([numbers.slice(0,numbers.length),[l,r,l,-1],flags.slice(0,flags.length)]);
+
+        var v = numbers[l];
+        data.push([numbers.slice(0,numbers.length),[l,r,l,-1],flags.slice(0,flags.length)]);
+        var j = l;
+        for (var i = l + 1; i <= r; i++) {
+            data.push([numbers.slice(0,numbers.length),[l,r,l,i],flags.slice(0,flags.length)]);
+            if (numbers[i] < v) {
+                j++;
+                swap(j, i);
+                data.push([numbers.slice(0,numbers.length),[l,r,l,i],flags.slice(0,flags.length)]);
+            }
+        }
+        swap(l, j);
+        data.push([numbers.slice(0,numbers.length),[l,r,-1,-1],flags.slice(0,flags.length)]);
+        flags[j]=true;
+        return j;
+    }
+
+    function swap(i, j) {
+        var mark = numbers[i];
+        numbers[i] = numbers[j];
+        numbers[j] = mark;
+    }
+
+
+    window.onload = function () {
+        init();
+
+        data.push([numbers.slice(0,numbers.length),[-1,-1,-1,-1],flags.slice(0,flags.length)]);
+        quickSort(0, numbers.length - 1);
+        data.push([numbers.slice(0,numbers.length),[-1,-1,-1,-1],flags.slice(0,flags.length)]);
+
+        var k = 0;
+        var loop = setInterval(function () {
+            draw(k);
+            k++;
+            if (k >= data.length) {
+                clearInterval(loop);
+            }
+        }, 20)
+
+    };
+
+
+    function draw(k) {
+        var l = data[k][1][0];
+        var r = data[k][1][1];
+        var curPivot = data[k][1][2];
+        var curElement = data[k][1][3];
+        var flag = data[k][2];
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < num; i++) {
+            context.beginPath();
+            if (i >= l && i <= r) {
+                context.fillStyle = "#0f0";
+            } else {
+                context.fillStyle = "#aaa";
+            }
+            if (i == curPivot) {
+                context.fillStyle = "#50f";
+            }
+            if(i == curElement){
+                context.fillStyle="#08f";
+            }
+            if(flag[i]){
+                context.fillStyle="#f80";
+            }
+            context.fillRect(width * i, canvas.height - data[k][0][i], width - 1, canvas.height);
+        }
+    }
+
+</script>
+</body>
+</html>

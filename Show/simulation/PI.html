@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+
+
+    var canvas = document.getElementById("canvas");
+    canvas.width = 800;
+    canvas.height = 800;
+    var context = canvas.getContext("2d");
+    var circle = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        r: canvas.width / 2,
+    };
+    var inCircle=0;
+    var allCircle=0;
+
+
+    window.onload = function () {
+        context.beginPath();
+        context.arc(circle.x,circle.y,circle.r,0,Math.PI*2);
+        context.strokeStyle="#aaa";
+        context.lineWidth=3;
+        context.stroke();
+
+        show()
+        // noShow();
+    };
+    function noShow() {
+        while (1){
+            var point = {
+                x:Math.random()*canvas.width,
+                y:Math.random()*canvas.height,
+            };
+            var flag = isCircle(point);
+            if (flag){
+                inCircle++;
+            }
+            allCircle++;
+            console.log(inCircle*4/allCircle);
+        }
+    }
+    function show() {
+        setInterval(function () {
+            var point = {
+                x:Math.random()*canvas.width,
+                y:Math.random()*canvas.height,
+            };
+            var flag = isCircle(point);
+            showPoint(point,flag);
+            if (flag){
+                inCircle++;
+            }
+            allCircle++;
+            console.log(inCircle*4/allCircle);
+        },1)
+    }
+    function showPoint(point,flag) {
+        context.beginPath();
+        context.arc(point.x,point.y,1,0,Math.PI*2);
+        if(flag){
+            context.strokeStyle="#f00";
+        }else {
+            context.strokeStyle="#00f";
+        }
+        context.lineWidth=1;
+        context.stroke();
+    }
+    function isCircle(point) {
+        return ((point.x -circle.r)* (point.x -circle.r)+ (point.y -circle.r)* (point.y -circle.r)) <= circle.r * circle.r ?true:false;
+    }
+</script>
+</body>
+</html>

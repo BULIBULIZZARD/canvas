@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    var canvas = document.getElementById("canvas");
+
+    //高度与宽度
+    var N = 20;
+    var M = 20;
+    var side = 32;
+    var mineNumber = 50;
+    var mines = [];
+    var open = [];
+    var flags = [];
+    var numbers = [];
+    canvas.width = side * N;
+    canvas.height = side * M;
+    var context = canvas.getContext("2d");
+
+    //图片加载
+    var block = new Image();
+    var flag = new Image();
+    var mine = new Image();
+    var image = [];
+    block.src = "resources/block.png";
+    flag.src = "resources/flag.png";
+    mine.src = "resources/mine.png";
+    for (var i = 0; i < 9; i++) {
+        var num = new Image();
+        num.src = "resources/" + i + ".png";
+        image.push(num);
+    }
+
+    window.onload = function () {
+        setMines();
+        setOpen();
+        setFlags();
+        setNumbers();
+        generateMines();
+        calculateNumbers();
+        draw();
+    };
+
+    function draw() {
+        for (var i = 0; i < N; i++) {
+            for (var j = 0; j < M; j++) {
+                console.log(open[i][j]);
+                if (open[i][j]) {
+                    if (isMine(i, j)) {
+                        context.drawImage(mine, i * side, j * side);
+                    } else {
+                        var num = numbers[i][j];
+                        console.log(num);
+                        context.drawImage(image[num], i * side, j * side);
+                    }
+                    continue;
+                }
+                if (!open[i][j] && flags[i][j]) {
+                    context.drawImage(flag, i * side, j * side);
+                } else {
+                    context.drawImage(block, i * side, j * side);
+                }
+            }
+        }
+    }
+
+    //鼠标事件
+    canvas.oncontextmenu = function (e) {
+        return false;
+    };
+    canvas.onmousedown = function (e) {
+        e.preventDefault();
+        var point = windowToCanvas(e.clientX, e.clientY);
+        if (e.button == 0) {
+            leftClick(Math.floor(point.x / side), Math.floor(point.y / side));
+        } else if (e.button == 2) {
+            rightClick(Math.floor(point.x / side), Math.floor(point.y / side));
+        }
+    };
+
+    function leftClick(x, y) {
+        if (!flags[x][y]) {
+            if (isMine(x, y)) {
+                for (var i = 0; i < M; i++) {
+                    for (var j = 0; j < N; j++) {
+                        open[i][j] = true;
+                    }
+                }
+                draw();
+                setTimeout(function () {
+                    alert("游戏失败了！");
+                    location.reload();
+                }, 30);
+
+            } else {
+                openMap(x, y);
+                draw();
+                setTimeout(function () {
+                    isWin();
+                }, 30);
+            }
+        }
+    }
+    function rightClick(x, y) {
+        if (!open[x][y]) {
+            flags[x][y] = !flags[x][y];
+            draw();
+        }
+        setTimeout(function () {
+            isWin();
+        }, 30);
+    }
+    function isWin() {
+        var opened=0;
+        var num=0;
+        for (var i = 0; i < M; i++) {
+            for (var j = 0; j < M; j++) {
+                if (open[i][j]){
+                    opened++;
+                    continue;
+                }
+                if(flags[i][j]){
+                    num++;
+                }
+            }
+        }
+        if(num+opened==N*M&&num==mineNumber){
+            alert("you win");
+        }
+    }
+
+    function openMap(x, y) {
+        if (!inArea(x, y)) {
+            alert("point out of range");
+        }
+        if (isMine(x, y)) {
+            alert("error");
+        }
+
+
+        open[x][y] = true;
+        if (numbers[x][y] > 0) {
+            return false;
+        }
+
+        for (var i = x - 1; i <= x + 1; i++) {
+            for (var j = y - 1; j <= y + 1; j++) {
+                if (inArea(i, j) && !open[i][j] && !mines[i][j]) {
+                    openMap(i, j);
+                }
+            }
+        }
+
+    }
+
+    function generateMines() {
+        for (var i = 0; i < mineNumber; i++) {
+            var x = parseInt(i / M);
+            var y = i % M;
+            mines[x][y] = true;
+        }
+        for (var i = N * M - 1; i >= 0; i--) {
+            var iX = parseInt(i / M);
+            var iY = i % M;
+
+            var randNumber = parseInt(Math.random() * (i + 1));
+            var randX = parseInt(randNumber / M);
+            var randY = randNumber % M;
+
+            swap(iX, iY, randX, randY);
+        }
+    }
+
+    function calculateNumbers() {
+        for (var i = 0; i < N; i++) {
+            for (var j = 0; j < M; j++) {
+                if (mines[i][j]) {
+                    numbers[i][j] = -1;
+                    continue;
+                }
+                numbers[i][j] = 0;
+                for (var ii = i - 1; ii <= i + 1; ii++) {
+                    for (var jj = j - 1; jj <= j + 1; jj++) {
+                        if (inArea(ii, jj)) {
+                            if (isMine(ii, jj)) {
+                                numbers[i][j]++;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    function swap(x1, y1, x2, y2) {
+        var data = mines[x1][y1];
+        mines[x1][y1] = mines[x2][y2];
+        mines[x2][y2] = data;
+    }
+
+    function setMines() {
+        for (var i = 0; i < N; i++) {
+            mines[i] = [];
+            for (var j = 0; j < M; j++) {
+                mines[i][j] = false;
+            }
+        }
+    }
+
+    function setOpen() {
+        for (var i = 0; i < N; i++) {
+            open[i] = [];
+            for (var j = 0; j < M; j++) {
+                open[i][j] = false;
+            }
+        }
+    }
+
+    function setFlags() {
+        for (var i = 0; i < N; i++) {
+            flags[i] = [];
+            for (var j = 0; j < M; j++) {
+                flags[i][j] = false;
+            }
+        }
+    }
+
+    function setNumbers() {
+        for (var i = 0; i < N; i++) {
+            numbers[i] = [];
+            for (var j = 0; j < M; j++) {
+                numbers[i][j] = 0;
+            }
+        }
+    }
+
+    function isMine(x, y) {
+        if (!inArea(x, y)) {
+            alert("point out of range");
+        }
+        return mines[x][y];
+    }
+
+    function inArea(x, y) {
+        return x >= 0 && x < N && y >= 0 && y < M;
+    }
+
+    function windowToCanvas(x, y) {
+        var bbox = canvas.getBoundingClientRect();
+        return {
+            x: Math.round(x - bbox.left),
+            y: Math.round(y - bbox.top),
+        };
+    }
+</script>
+</body>
+</html>

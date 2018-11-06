@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    var numbers = [];
+    var num = 100;
+    var max = 800;
+    var data = [];
+    var flags = [];
+
+    var canvas = document.getElementById("canvas");
+    canvas.width = 1200;
+    canvas.height = 800;
+    var context = canvas.getContext("2d");
+    var width = canvas.width / num;
+
+    function init() {
+        for (var i = 0; i < num; i++) {
+            numbers[i] = parseInt(Math.random() * max) + 1;
+            flags[i] = false;
+        }
+    }
+
+    function quickSort2Ways(l, r) {
+        if (l > r) return [];
+        if (l == r) {
+            data.push([numbers.slice(0, numbers.length), [l, r, -1, -1, -1], flags.slice(0, flags.length)]);
+            flags[l] = true;
+            return [];
+        }
+        data.push([numbers.slice(0, numbers.length), [l, r, -1, -1, -1], flags.slice(0, flags.length)]);
+        var p = partition(l, r);
+        quickSort2Ways(l, p);
+        quickSort2Ways(p + 1, r);
+    }
+
+    function partition(l, r) {
+        var p = parseInt(Math.random() * (r - l + 1)) + l;
+        flags[p] = true;
+        data.push([numbers.slice(0, numbers.length), [l, r, l, -1, -1], flags.slice(0, flags.length)]);
+
+        var v = numbers[l];
+        data.push([numbers.slice(0, numbers.length), [l, r, l, -1, -1], flags.slice(0, flags.length)]);
+
+
+        var i = l + 1, j = r;
+        data.push([numbers.slice(0, numbers.length), [l, r, l, i, j], flags.slice(0, flags.length)]);
+        while (true) {
+            while (i <= r && numbers[i] < v) {
+                i++;
+                data.push([numbers.slice(0, numbers.length), [l, r, l, i, j], flags.slice(0, flags.length)]);
+            }
+            while (j >= l + 1 && numbers[j] > v) {
+                j--;
+                data.push([numbers.slice(0, numbers.length), [l, r, l, i, j], flags.slice(0, flags.length)]);
+            }
+            if (i > j) {
+                break;
+            }
+            swap(i, j);
+            data.push([numbers.slice(0, numbers.length), [l, r, l, i, j], flags.slice(0, flags.length)]);
+            i++;
+            j--;
+        }
+        swap(l, j);
+        data.push([numbers.slice(0, numbers.length), [l, r, j, -1, -1], flags.slice(0, flags.length)]);
+        flags[j] = true;
+        return j;
+    }
+
+    function swap(i, j) {
+        var mark = numbers[i];
+        numbers[i] = numbers[j];
+        numbers[j] = mark;
+    }
+
+
+    window.onload = function () {
+        init();
+
+        data.push([numbers.slice(0, numbers.length), [-1, -1, -1, -1, -1], flags.slice(0, flags.length)]);
+        quickSort2Ways(0, numbers.length - 1);
+        data.push([numbers.slice(0, numbers.length), [-1, -1, -1, -1, -1], flags.slice(0, flags.length)]);
+
+        var k = 0;
+        var loop = setInterval(function () {
+            draw(k);
+            k++;
+            if (k >= data.length) {
+                clearInterval(loop);
+            }
+        }, 20)
+
+    };
+
+
+    function draw(k) {
+        var l = data[k][1][0];
+        var r = data[k][1][1];
+        var curPivot = data[k][1][2];
+        var curL = data[k][1][3];
+        var curR = data[k][1][4];
+        var flag = data[k][2];
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < num; i++) {
+            context.beginPath();
+            if (i >= l && i <= r) {
+                context.fillStyle = "#0f0";
+            } else {
+                context.fillStyle = "#aaa";
+            }
+            if (i == curPivot) {
+                context.fillStyle = "#50f";
+            }
+            if (i >= l + 1 && i <= curL) {
+                context.fillStyle = "#08f";
+            }
+            if (i >= curR && i <= r) {
+                context.fillStyle = "#08f";
+            }
+            if (flag[i]) {
+                context.fillStyle = "#f80";
+            }
+            context.fillRect(width * i, canvas.height - data[k][0][i], width - 1, canvas.height);
+        }
+    }
+
+</script>
+</body>
+</html>

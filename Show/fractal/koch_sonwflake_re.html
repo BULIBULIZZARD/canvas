@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    const depth = 5;
+    const side = Math.pow(4,depth);
+    const step = [[1, 0], [0, -1], [1, 0], [0, 1], [0, 1], [1, 0], [0, -1], [1, 0]];
+
+    const canvas = document.getElementById("canvas");
+    canvas.width = side;
+    canvas.height = side;
+    const context = canvas.getContext("2d");
+
+    drawFractal(0, canvas.height /2, canvas.width, canvas.height/2,side, 0);
+    document.onkeydown = function (e) {
+        let key = e.key;
+        if(parseInt(key)>=0&&parseInt(key)<=depth){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawFractal(0, canvas.height /2, canvas.width, canvas.height/2,side, parseInt(key));
+        }
+    };
+
+    function drawFractal(x1, y1, x2, y2, s, d) {
+
+        if (d == depth||s <=0) {
+            context.beginPath();
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.strokeStyle = "#08f";
+            context.stroke();
+            return false;
+        }
+        let s_4 = parseInt(s / 4);
+
+        if (y1 == y2) {
+            if (x1<x2){
+                let lastX = x1;
+                let lastY = y1;
+                for (let i = 0; i < step.length; i++) {
+                    let newX = lastX + s_4* step[i][0];
+                    let newY = lastY + s_4* step[i][1];
+                    drawFractal(lastX, lastY, newX, newY, s_4, d+1);
+                    lastX = newX;
+                    lastY = newY;
+                }
+            }else {
+                let lastX = x1;
+                let lastY = y1;
+                for (let i = 0; i < step.length; i++) {
+                    let newX = lastX - s_4* step[i][0];
+                    let newY = lastY - s_4* step[i][1];
+                    drawFractal(lastX, lastY, newX, newY, s_4, d+1);
+                    lastX = newX;
+                    lastY = newY;
+                }
+            }
+
+        }else if (y1 > y2){
+            let lastX = x1;
+            let lastY = y1;
+            for (let i = 0; i < step.length; i++) {
+                let newX = lastX + s_4* step[i][1];
+                let newY = lastY - s_4* step[i][0];
+                drawFractal(lastX, lastY, newX, newY, s_4, d+1);
+                lastX = newX;
+                lastY = newY;
+            }
+        }else  if (y1 < y2){
+            let lastX = x1;
+            let lastY = y1;
+            for (let i = 0; i < step.length; i++) {
+                let newX = lastX - s_4* step[i][1];
+                let newY = lastY + s_4* step[i][0];
+                drawFractal(lastX, lastY, newX, newY, s_4, d+1);
+                lastX = newX;
+                lastY = newY;
+            }
+        }
+    }
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<input type="file" onchange="jsReadFiles(this.files)">
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+
+<script>
+    var N, M;
+    var maze = [];
+    var flags = [];
+    var show = [];
+    var d = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+    var entrance;
+    var exit;
+    var canvas = document.getElementById("canvas");
+    canvas.width = 101 * 8;
+    canvas.height = 101 * 8;
+    var context = canvas.getContext("2d");
+
+    function setMazeData() {
+        var data = [];
+        for (var i = 0; i < flags.length; i++) {
+            data.push(flags[i].slice(0, flags[i].length));
+        }
+        show.push([data.slice(0, flags.length)]);
+    }
+
+    function searchRoad() {
+        init();
+        setMazeData();
+        var result = depth(entrance.x, entrance.y)
+        if (!result){
+            alert("no way to exit");
+        }
+        setMazeData();
+        var k = 0;
+        var loop = setInterval(function () {
+            if (k >= show.length-1) {
+                clearInterval(loop);
+            }
+            drawPath(k);
+            k++;
+        }, 10)
+    }
+
+    function depth(x, y) {
+        if (!inArea(x, y)) alert("Point out of range");
+        flags[x][y] = 1;
+        setMazeData();
+        if (x == exit.x && y == exit.y) {
+            return true;
+        }
+        for (var i = 0; i < 4; i++) {
+            var newX = x + d[i][0];
+            var newY = y + d[i][1];
+            if (inArea(newX, newY) && getMaze(newX, newY) == " " && flags[newX][newY] == 0) {
+                if(depth(newX, newY))return true;
+            }
+        }
+        if (inArea(x, y)) {
+            flags[x][y] = 2;
+        }
+        return false;
+    }
+
+    function init() {
+        while (flags.length!=0){
+            flags.pop();
+        }
+        while (show.length!=0){
+            show.pop();
+        }
+        setMazeFlags();
+        entrance = {
+            x: 1,
+            y: 0
+        };
+        exit = {
+            x: maze.length - 2,
+            y: maze[0].length - 1,
+        };
+    }
+    function setMaze() {
+        var num = 0;
+        while (true) {
+            if (string[num]) {
+                var data = [];
+                while (true) {
+                    var char = string[num];
+                    var a = 1;
+                    if (char == "\n") {
+                        break;
+                    }
+                    data.push(char);
+                    num++;
+                }
+                maze.push(data);
+                num++;
+            } else {
+                break;
+            }
+        }
+        maze = maze.slice(1, maze.length);
+    }
+
+    function setMazeFlags() {
+        for (var i = 0; i < N(); i++) {
+            var flag = [];
+            for (var j = 0; j < M(); j++) {
+                flag.push(0);
+            }
+            flags.push(flag);
+        }
+    }
+    function N() {
+        return maze.length;
+    }
+
+    function M() {
+        return maze[0].length;
+    }
+
+    function getMaze(i, j) {
+        if (!inArea(i, j)) {
+            alert("error");
+        }
+        return maze[i][j];
+    }
+    function inArea(x, y) {
+        return x >= 0 && x < N() && y >= 0 && y < M();
+    }
+
+    function drawPath(k) {
+        var width = parseInt(canvas.width / N());
+        var height = parseInt(canvas.height / M());
+        for (var i = 0; i < maze.length; i++) {
+            for (var j = 0; j < maze[i].length; j++) {
+                if (show[k][0][i][j] == 1) {
+                    context.beginPath();
+                    context.fillStyle = "#f00";
+                    context.fillRect(j * width, i * height, width, height);
+                    continue;
+                }
+                if(show[k][0][i][j] == 2){
+                    context.beginPath();
+                    context.fillStyle = "#ff0";
+                    context.fillRect(j * width, i * height, width, height);
+                }
+            }
+        }
+    }
+
+
+</script>
+</body>
+</html>

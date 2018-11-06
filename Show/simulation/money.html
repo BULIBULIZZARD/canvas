@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+
+    var num = 100;
+    var canvas = document.getElementById("canvas");
+    canvas.width = 1000;
+    canvas.height = 800;
+    var context = canvas.getContext("2d");
+    var money = [];
+    var width = canvas.width / num;
+    var height = canvas.height;
+
+    window.onload = function () {
+
+        init();
+
+        setInterval(function () {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (var j=0 ;j<50;j++){
+                for (var i = 0; i < money.length; i++) {
+                        var j = parseInt(Math.random() * num);
+                        console.log(j);
+                        money[i] -= 1;
+                        money[j] += 1;
+                }
+            }
+
+            draw(i, money[i]);
+
+        }, 10)
+
+    };
+
+    function init() {
+        for (var i = 0; i < num; i++) {
+            money[i] = 100;
+        }
+    }
+
+    function draw() {
+        function compare(value1,value2){
+            if(value1 < value2){
+                return -1;
+            }else if(value1 > value2){
+                return 1;
+            }else{
+                return 0;
+            }
+        }
+        money.sort(compare);
+        for (var i = 0; i < money.length; i++){
+            if(money[i]>0){
+                context.beginPath();
+                context.fillStyle = "#f00";
+                context.fillRect(width * i, canvas.height/2 - money[i], width - 1, money[i]);
+            }else{
+                context.beginPath();
+                context.fillStyle = "#0f0";
+                context.fillRect(width * i, canvas.height/2 - money[i], width - 1, money[i]);
+            }
+
+        }
+
+    }
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    var numbers = [];
+    var num = 100;
+    var max = 800;
+    var data = [[]];
+
+    var canvas = document.getElementById("canvas");
+    canvas.width = 1200;
+    canvas.height = 800;
+    var context = canvas.getContext("2d");
+    var width = canvas.width / num;
+
+    function init() {
+        for (var i = 0; i < num; i++) {
+            numbers[i] = parseInt(Math.random() * max) + 1;
+        }
+        console.log(numbers);
+    }
+
+    window.onload = function () {
+        init();
+
+        var k=0;
+        data[0]=[numbers,[-1,-1]];
+        for(var i=0;i<num;i++){
+            for (var j = i; j > 0 && numbers[j] < numbers[j - 1]; j--) {
+                swap(j, j - 1);
+                k++;
+                data[k]=[numbers.slice(0,numbers.length),[i,j]];
+            }
+        }
+        k=0;
+        console.log(data);
+        var loop = setInterval(function () {
+            draw2(k);
+            k++;
+            if(k>=data.length){
+                clearInterval(loop);
+            }
+        },1)
+    };
+
+
+    function draw(sorted, index) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < num; i++) {
+            context.beginPath();
+            if (i <= sorted) {
+                context.fillStyle = "#f80";
+            } else {
+                context.fillStyle = "#aaa";
+            }
+            if (i == index-1 && sorted != num-1) {
+                context.fillStyle = "#50f";
+            }
+            context.fillRect(width * i, canvas.height - numbers[i], width - 1, canvas.height);
+        }
+        return true;
+    }
+
+
+    function draw2(k) {
+        context.clearRect(0,0,canvas.width,canvas.height);
+        for (var i = 0; i < num; i++) {
+            context.beginPath();
+            if (i <= data[k][1][0]) {
+                context.fillStyle = "#f80";
+            } else {
+                context.fillStyle = "#aaa";
+            }
+
+            if (i == data[k][1][1]-1 && data[k][1][0]!=num-1) {
+                context.fillStyle = "#50f";
+            }
+            context.fillRect(width * i, canvas.height - data[k][0][i], width - 1, canvas.height);
+        }
+        return true;
+    }
+
+    function swap(i, j) {
+        var mark = numbers[i];
+        numbers[i] = numbers[j];
+        numbers[j] = mark;
+    }
+</script>
+</body>
+</html>

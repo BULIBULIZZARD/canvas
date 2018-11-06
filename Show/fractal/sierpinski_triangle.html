@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    const depth = 9;
+    const canvas = document.getElementById("canvas");
+    canvas.width = Math.pow(2, depth);
+    canvas.height = Math.pow(2, depth);
+    const context = canvas.getContext("2d");
+    CanvasRenderingContext2D.prototype.fillTriangle = function (x1, y1, x2, y2, x3, y3) {
+        this.save();
+        this.beginPath();
+        this.moveTo(x1, y1);
+        this.lineTo(x2, y2);
+        this.lineTo(x3, y3);
+        this.closePath();
+        this.fill();
+        this.restore();
+    };
+
+    drawFractal(0, canvas.height, canvas.width, 0);
+    document.onkeydown = function (e) {
+        let key = e.key;
+        if (parseInt(key)>=0&&parseInt(key)<=depth) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawFractal(0, canvas.height, canvas.width, parseInt(key));
+        }
+    };
+
+    function drawFractal(Ax, Ay, side, d) {
+        if (side <= 1) {
+            context.beginPath();
+            context.fillStyle = "#08f";
+            context.fillRect(Ax, Ay, 1, 1);
+            return '';
+        }
+        let Bx = Ax + side;
+        let By = Ay;
+        let Cx = parseInt(Ax + side / 2);
+        let Cy = Ay - parseInt(Math.sin(60.0 * Math.PI / 180.0) * side);
+
+        if (d == depth) {
+            context.beginPath();
+            context.fillStyle = "#08f";
+            context.fillTriangle(Ax, Ay, Bx, By, Cx, Cy)
+            return ''
+        }
+
+        let AB_centerx = parseInt((Ax + Bx) / 2);
+        let AB_centery = parseInt((Ay + By) / 2);
+
+        let AC_centerx = parseInt((Ax + Cx) / 2);
+        let AC_centery = parseInt((Ay + Cy) / 2);
+
+        drawFractal(Ax, Ay, side/2, d+1);
+        drawFractal(AC_centerx, AC_centery,side/2, d+1);
+        drawFractal(AB_centerx, AB_centery, side/2, d+1);
+    }
+
+
+
+
+</script>
+</body>
+</html>

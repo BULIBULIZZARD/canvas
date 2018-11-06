@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" style="border:1px solid #aaa;display:block;margin:50px auto">
+    当前浏览器不支持Canvas 请更换浏览器后重试
+</canvas>
+<script>
+    window.onload = function () {
+        var canvas = document.getElementById("canvas");
+        canvas.width = 800;
+        canvas.height = 800;
+        var context = canvas.getContext("2d");
+
+        context.font="bold 40px Arial";
+        context.fillStyle="#058";
+        context.fillText("fillText",40,100);
+
+        context.lineWidth=1;
+        context.strokeStyle="#058";
+        context.strokeText("strokeText",40,200);
+
+        var linearGrad = context.createRadialGradient(400, 400, 0, 400, 400, 500);
+        linearGrad.addColorStop(1 / 7.0, '#f00');
+        linearGrad.addColorStop(2 / 7.0, '#f80');
+        linearGrad.addColorStop(3 / 7.0, '#ff0');
+        linearGrad.addColorStop(4 / 7.0, '#0f0');
+        linearGrad.addColorStop(5 / 7.0, '#0ff');
+        linearGrad.addColorStop(6 / 7.0, '#00f');
+        linearGrad.addColorStop(1.0, '#80f');
+        context.fillStyle=linearGrad;
+        context.fillText("createRadialGradient",40,300);
+
+        var backgroundImage = new Image();
+        backgroundImage.src="test.gif";
+        backgroundImage.onload=function(){
+            var pattern = context.createPattern(backgroundImage,"repeat");
+            context.fillStyle = pattern;
+            context.font="bold 40px Arial";
+            context.fillText("御坂美琴",40,400);
+        }
+    }
+</script>
+</body>
+</html>
